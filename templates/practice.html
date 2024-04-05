@@ -1,0 +1,306 @@
+{% from "macros_navbar.html" import navbar %} {% from "macros_footer.html"
+import footer %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Yoga Pose Detection</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+    <!-- Custom CSS -->
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .container {
+        margin-top: 50px;
+      }
+
+      .title_head {
+        color: #6a9c5c;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .title {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .error {
+        color: red;
+      }
+
+      .correct {
+        color: #6a9c5c;
+      }
+
+      .video-container {
+        border: 2px solid #6a9c5c;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .video-container img {
+        width: 100%;
+        height: auto;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 400px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-group {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    {{ navbar() }}
+    <div class="container pt-5">
+      <h1 class="title_head">Live Yoga Pose Detection</h1>
+      <h2 class="title" id="posetitle">Current pose will be displayed here</h2>
+
+      <h3 id="timer">Pending: 0 seconds</h3>
+      <div class="btn-group text-center" role="group">
+        <button type="button" class="btn btn-primary" id="startButton">
+          Start
+        </button>
+        <button type="button" class="btn btn-danger" id="stopButton" disabled>
+          Stop
+        </button>
+        <button type="button" class="btn btn-info" id="getInfoButton">
+          Get Info
+        </button>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="video-container">
+            <img id="video_feed" src="" alt="Video Feed" class="img-fluid" />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="image-container">
+            <img
+              img
+              src="{{ url_for('default_image') }}"
+              alt="Placeholder Image"
+              class="img-fluid"
+            />
+            <!-- Replace "/static/images/your_image.jpg" with your actual image path -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="myModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">
+              Receive Session Information
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="emailOrPhone"
+                  >Enter your Email or Phone Number:</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="emailOrPhone"
+                  placeholder="Email or Phone"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Skip
+            </button>
+            <button type="button" class="btn btn-primary" id="submitInfo">
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+      integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+      integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Custom JS -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const startButton = document.getElementById("startButton");
+        const stopButton = document.getElementById("stopButton");
+        const getInfoButton = document.getElementById("getInfoButton");
+        const text = document.getElementById("posetitle");
+        const videoFeed = document.getElementById("video_feed");
+        const imageContainer = document.querySelector(".image-container img");
+        const contactForm = document.getElementById("contactForm");
+        const modal = document.getElementById("myModal");
+        let classificationStarted = false;
+
+        startButton.addEventListener("click", function () {
+          // Enable stop button and disable start button
+          startButton.disabled = true;
+          stopButton.disabled = false;
+          getInfoButton.disabled = true;
+          classificationStarted = true; // Start classification
+          // Load video feed
+          videoFeed.src = "{{ url_for('video_feed') }}";
+        });
+
+        stopButton.addEventListener("click", function () {
+          // Enable start button and disable stop button
+          startButton.disabled = false;
+          stopButton.disabled = true;
+          getInfoButton.disabled = false; // Enable Get Info button
+          classificationStarted = false; // Classification stopped
+          // Stop video feed
+          videoFeed.src = "";
+        });
+
+        getInfoButton.addEventListener("click", function () {
+          if (!classificationStarted) {
+            $("#myModal").modal("show");
+          }
+        });
+
+        const submitInfoButton = document.getElementById("submitInfo"); // Define submitInfoButton here
+
+        submitInfoButton.addEventListener("click", function () {
+          // Get the contact details from the form
+          const emailOrPhone = document.getElementById("emailOrPhone").value;
+
+          // Make GET request to Flask backend with contact details
+          fetch(`/submit-contact-details?emailOrPhone=${emailOrPhone}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              // Handle response if needed
+              return response.json();
+            })
+            .then((data) => {
+              // Handle success response if needed
+              console.log(data);
+            })
+            .catch((error) => {
+              console.error("Error submitting contact details:", error);
+            });
+        });
+
+        // Function to update the image
+        function updateImage() {
+          if (classificationStarted) {
+            fetch("/default_image")
+              .then((response) => response.text())
+              .then((data) => {
+                imageContainer.src = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching image:", error);
+              });
+          }
+        }
+
+        function updateText() {
+          if (classificationStarted) {
+            fetch("/default_text")
+              .then((response) => response.text())
+              .then((data) => {
+                const titleElement = document.getElementById("posetitle");
+
+                temp = data.split(" ");
+
+                if (temp.includes("Wrong")) {
+                  titleElement.classList.remove("correct");
+                  titleElement.classList.add("error");
+                } else {
+                  titleElement.classList.remove("error");
+                  titleElement.classList.add("correct");
+                }
+                titleElement.innerText = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching image:", error);
+              });
+          }
+        }
+
+        function updateTimer() {
+          if (classificationStarted) {
+            fetch("/default_timer")
+              .then((response) => response.text())
+              .then((data) => {
+                const timerElement = document.getElementById("timer");
+                timerElement.innerHTML = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching image:", error);
+              });
+          }
+        }
+
+        updateText();
+        updateTimer();
+        updateImage();
+        setInterval(updateTimer, 1000);
+        setInterval(updateImage, 1000);
+        setInterval(updateText, 1000);
+      });
+    </script>
+
+    <br />
+    <br />
+    {{footer()}}
+  </body>
+</html>

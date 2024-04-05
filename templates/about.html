@@ -1,0 +1,104 @@
+{% from "macros_navbar.html" import navbar %} {% from "macros_footer.html"
+import footer %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Train-On</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .section {
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .title {
+        color: #013220;
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+      }
+      .content {
+        font-size: 18px;
+        line-height: 1.5;
+      }
+      .image {
+        height: 220px;
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    {{ navbar() }}
+    <div class="container-fluid pt-5">
+      <div class="container-fluid pt-5 section">
+        <h1 class="pt-2 title">ABOUT TRAIN-ON</h1>
+        <div class="container-fluid pt-3">
+          <div class="row v-100 pt-2 text-left">
+            <div class="col-md-6">
+              <p class="content">
+                Yoga, an ancient practice originating from India, encompasses
+                physical postures, breathing exercises, and meditation,
+                fostering holistic well-being and harmony between mind, body,
+                and spirit. Its importance lies in promoting physical health,
+                mental clarity, emotional balance, and spiritual growth,
+                offering a pathway towards greater self-awareness and inner
+                peace.
+              </p>
+              <br />
+              <p class="content">
+                Recognizing the widespread interest in yoga as a remedy for
+                stress but acknowledging the barriers of time constraints and a
+                lack of access to proper trainers, this project introduces
+                Train-On, a cutting-edge Yoga Trainer.
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="content">
+                TrainOn provides a convenient and flexible platform for
+                individuals to explore and engage in yoga practice on their own
+                terms, without the pressure of tracking progress or adhering to
+                monitored classes.
+              </p>
+              <br />
+              <p class="content">
+                TrainOn fosters a non-competitive environment by prioritizing
+                individual progress and personal well-being over comparison with
+                others. Unlike some traditional yoga classes or studios where
+                there may be an emphasis on achieving specific poses or
+                outperforming peers, TrainOn encourages users to focus inward
+                and cultivate mindfulness during their practice.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid text-center mt-4">
+        <div class="row">
+          <div class="col-md-6">
+            <img src="/static/images/keep2.png"" class="rounded float-left
+            image" />
+          </div>
+          <div class="col-md-6">
+            <img
+              src="/static/images/keep1.png"
+              alt=""
+              class="rounded float-right image"
+            />
+          </div>
+        </div>
+        <br />
+      </div>
+    </div>
+    {{footer()}}
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+  </body>
+</html>
