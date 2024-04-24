@@ -6,6 +6,8 @@ import mediapipe as mp
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 from utils.first import calculateAngle, mp_pose, pose, mp_drawing, detectPose
@@ -144,8 +146,6 @@ def generate_frames_second():
     render_image='/static/images/Done.png'            
 
 
-
-
 global email_information
 email_information = {
     "module_name":"module_name",
@@ -154,6 +154,25 @@ email_information = {
     "accuracy":[],
     
 }
+
+# Modify the generate_pie_chart function to accept accuracy_data
+def generate_pie_chart(accuracy_data):
+    exercises = [f'Exercise {i+1}' for i in range(len(accuracy_data))]
+    plt.pie(accuracy_data, labels=exercises, autopct='%1.1f%%')
+    plt.title('Accuracy of Exercises')
+    plt.axis('equal')
+    plt.savefig('static/images/pie_chart.png')  # Save the pie chart image
+    plt.close()
+
+# Modify the generate_bar_graph function to accept accuracy_data
+def generate_bar_graph(accuracy_data):
+    exercises = [f'Exercise {i+1}' for i in range(len(accuracy_data))]
+    plt.bar(exercises, accuracy_data)
+    plt.xlabel('Exercises')
+    plt.ylabel('Accuracy (%)')
+    plt.title('Accuracy of Exercises')
+    plt.savefig('static/images/bar_graph.png')  # Save the bar graph image
+    plt.close()
 
 def generate_frames_custom():
    
@@ -215,6 +234,10 @@ def submit_contact_details():
     recipient_email = email
     subject = 'Subject of the Email'
     # Construct the HTML content for the email body
+    # Generate pie chart and bar graph
+    # Generate pie chart and bar graph using accuracy data
+    generate_pie_chart(email_information['accuracy'])
+    generate_bar_graph(email_information['accuracy'])
     message_body = f"""
     <html>
     <head>
@@ -242,7 +265,13 @@ def submit_contact_details():
     <ul>
         {"".join(f"<li>{accuracy}%</li>" for accuracy in email_information['accuracy'])}
     </ul>
+   <!-- Example in contact.html -->
+<img src="{{ url_for('static', filename='images/pie_chart.png') }}" alt="Pie Chart">
+<img src="{{ url_for('static', filename='images/bar_graph.png') }}" alt="Bar Graph">
+
+
     </body>
+    
     </html>
     """
     # Create message
@@ -261,6 +290,7 @@ def submit_contact_details():
         server.sendmail(sender_email, recipient_email, msg.as_string())
         server.quit()
         print("Email sent successfully")
+        
     except Exception as e:
         print(f"Failed to send email: {e}")
 
